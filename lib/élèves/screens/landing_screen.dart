@@ -117,7 +117,7 @@ class LandingScreen extends StatelessWidget {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
-                        onPressed: () => context.go('/auth/signup'),
+                        onPressed: () => context.go('/auth/login'),
                         icon: const Icon(Icons.chevron_right_rounded),
                         label: const Text('Découvrir la plateforme'),
                       ),
@@ -374,5 +374,39 @@ Widget _BenefitCardIcon(IconData icon, String description) {
         Text(description, style: TextStyle(color: Colors.white70, fontSize: 14)),
       ],
     ),
+  );
+}
+
+void _showContinueDialog(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (context) {
+      return AlertDialog(
+        title: const Text('Continuer en tant que'),
+        content: const Text('Choisissez votre profil pour continuer sur la plateforme.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              context.go('/auth/login');
+            },
+            child: const Text('Élève'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text(
+                    'Demandez l’accès professeur depuis votre profil après connexion.',
+                  ),
+                ),
+              );
+            },
+            child: const Text('Professeur'),
+          ),
+        ],
+      );
+    },
   );
 }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -12,10 +13,12 @@ class SignupScreen extends StatefulWidget {
 class _SignupScreenState extends State<SignupScreen> {
   bool _obscurePassword = true;
   bool _acceptTerms = false;
+  String _errorMessage = '';
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
   final _phoneController = TextEditingController();
+  final _schoolController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
 
@@ -24,15 +27,31 @@ class _SignupScreenState extends State<SignupScreen> {
     _nameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
+    _schoolController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
   }
 
   void _handleSubmit() {
-    if (_formKey.currentState!.validate() && _acceptTerms) {
-      context.go('/auth/otp');
+    if (!_formKey.currentState!.validate() || !_acceptTerms) {
+      return;
     }
+
+    final error = AuthService.register(
+      fullName: _nameController.text,
+      email: _emailController.text,
+      password: _passwordController.text,
+      phone: _phoneController.text,
+      school: _schoolController.text,
+    );
+
+    if (error != null) {
+      setState(() => _errorMessage = error);
+      return;
+    }
+
+    context.go('/dashboard');
   }
 
   @override
@@ -152,6 +171,21 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           const SizedBox(height: 16),
 
+                          // School / Establishment
+                          _buildLabel('Établissement'),
+                          const SizedBox(height: 8),
+                          TextFormField(
+                            controller: _schoolController,
+                            decoration: InputDecoration(
+                              hintText: 'Nom de votre établissement',
+                              prefixIcon: Icon(Icons.school_outlined,
+                                  color: AppColors.textTertiary),
+                            ),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? 'Établissement requis' : null,
+                          ),
+                          const SizedBox(height: 16),
+
                           // Password
                           _buildLabel('Mot de passe'),
                           const SizedBox(height: 8),
@@ -243,6 +277,12 @@ class _SignupScreenState extends State<SignupScreen> {
                             ],
                           ),
                           const SizedBox(height: 24),
+                          if (_errorMessage.isNotEmpty) ...[
+                            Text(_errorMessage,
+                                style: const TextStyle(
+                                    color: Colors.redAccent, fontSize: 13)),
+                            const SizedBox(height: 16),
+                          ],
 
                           // Submit
                           SizedBox(

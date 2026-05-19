@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import '../../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_drawer.dart';
 
 class AiAssistantScreen extends StatefulWidget {
   const AiAssistantScreen({super.key});
@@ -50,6 +52,7 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   }
 
   void _sendMessage(String text) {
+    if (!AuthService.requireLogin(context, action: 'utiliser l’assistant IA')) return;
     if (text.trim().isEmpty) return;
 
     setState(() {
@@ -84,8 +87,11 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
   @override
   Widget build(BuildContext context) {
     final hasUserMessages = _messages.any((m) => m.role == 'user');
+    final isAuthenticated = AuthService.isLoggedIn;
 
     return Scaffold(
+      drawer: _buildHistoryDrawer(),
+      endDrawer: const AppDrawer(),
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +133,16 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             ),
           ),
 
-          // Quick Questions
+          if (!isAuthenticated)
+            Container(
+              width: double.infinity,
+              color: AppColors.brandLight,
+              padding: const EdgeInsets.all(16),
+              child: Text(
+                'Connectez-vous pour utiliser l’assistant IA et poser des questions.',
+                style: TextStyle(color: AppColors.brand, fontWeight: FontWeight.w600),
+              ),
+            ),
           if (!hasUserMessages)
             Container(
               decoration: BoxDecoration(
@@ -143,7 +158,10 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                   ...quickQuestions.map((q) => Padding(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: GestureDetector(
-                          onTap: () => _sendMessage(q.text),
+                          onTap: () {
+                            if (!AuthService.requireLogin(context, action: 'utiliser l’assistant IA')) return;
+                            _sendMessage(q.text);
+                          },
                           child: Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
@@ -188,11 +206,21 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
                 children: [
                   Row(
                     children: [
+                      IconButton(
+                        onPressed: () {
+                          // TODO: Implement file picker
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Sélectionner un fichier ou une photo...')),
+                          );
+                        },
+                        icon: Icon(Icons.add_photo_alternate_outlined, color: AppColors.textSecondary),
+                        tooltip: 'Joindre un fichier ou une photo',
+                      ),
                       Expanded(
                         child: TextField(
                           controller: _inputController,
                           decoration: InputDecoration(
-                            hintText: 'Posez votre question...',
+                            hintText: isAuthenticated ? 'Posez votre question...' : 'Connectez-vous pour poser une question',
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(24),
                               borderSide: BorderSide(color: AppColors.border),
@@ -237,6 +265,68 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildHistoryDrawer() {
+    return Drawer(
+      backgroundColor: AppColors.background,
+      child: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: Row(
+                children: [
+                  Icon(Icons.history_rounded, color: AppColors.brand),
+                  const SizedBox(width: 12),
+                  const Text('Historique', style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700)),
+                ],
+              ),
+            ),
+            Container(height: 1, color: AppColors.divider),
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: const [
+                  _HistoryTile(title: 'Équation du second degré', date: 'Aujourd\'hui'),
+                  _HistoryTile(title: 'Théorème de Pythagore', date: 'Hier'),
+                  _HistoryTile(title: 'Structure d\'une dissertation', date: 'La semaine dernière'),
+                  _HistoryTile(title: 'Explication photosynthèse', date: 'Il y a 2 semaines'),
+                ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.pop(context);
+                  setState(() {
+                    _messages.clear();
+                    _messages.add(
+                      _Message(
+                        id: 1,
+                        role: 'assistant',
+                        content: "Bonjour ! Je suis votre assistant intelligent 24/7. Je suis là pour vous guider dans votre réflexion. Comment puis-je vous aider aujourd'hui ?",
+                        timestamp: DateTime.now(),
+                      ),
+                    );
+                  });
+                },
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Nouvelle discussion'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 12),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  side: BorderSide(color: AppColors.brand),
+                  foregroundColor: AppColors.brand,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -383,4 +473,25 @@ class _Quick {
   final IconData icon;
   final String text;
   _Quick(this.icon, this.text);
+}
+
+class _HistoryTile extends StatelessWidget {
+  final String title;
+  final String date;
+
+  const _HistoryTile({required this.title, required this.date});
+
+  @override
+  Widget build(BuildContext context) {
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+      leading: Icon(Icons.chat_bubble_outline_rounded, color: AppColors.textSecondary, size: 20),
+      title: Text(title, style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: AppColors.textPrimary), maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(date, style: TextStyle(fontSize: 12, color: AppColors.textTertiary)),
+      onTap: () {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Chargement de la discussion...')));
+      },
+    );
+  }
 }

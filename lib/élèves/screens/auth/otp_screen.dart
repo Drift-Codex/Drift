@@ -55,7 +55,6 @@ class _OtpScreenState extends State<OtpScreen> {
   bool get _isComplete =>
       _controllers.every((c) => c.text.isNotEmpty);
 
-  String get _otpValue => _controllers.map((c) => c.text).join();
 
   void _handleSubmit() {
     if (_isComplete) {
@@ -122,7 +121,7 @@ class _OtpScreenState extends State<OtpScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.08),
+
                             blurRadius: 24,
                             offset: const Offset(0, 8),
                           ),

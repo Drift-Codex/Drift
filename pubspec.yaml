@@ -9,16 +9,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  go_router: ^15.1.2
-  google_fonts: ^6.2.1
+  go_router: ^17.2.3
+  google_fonts: ^8.1.0
   flutter_animate: ^4.5.2
-  pinput: ^5.0.1
+  pinput: ^6.0.2
   cupertino_icons: ^1.0.8
+  share_plus: ^10.0.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^5.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/image/forum.png
+    - assets/image/exam_bank.png
+    - assets/image/ai_assistant.png
+    - assets/image/sujet1.jpg
+    - assets/image/sujet2.jpg
+    - assets/image/Sujet3.jpg
+    - assets/image/sujet4.jpg

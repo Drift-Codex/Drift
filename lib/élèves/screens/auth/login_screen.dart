@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _rememberMe = false;
+  String _errorMessage = '';
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -24,9 +26,21 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleSubmit() {
-    if (_formKey.currentState!.validate()) {
-      context.go('/dashboard');
+    if (!_formKey.currentState!.validate()) {
+      return;
     }
+
+    final error = AuthService.login(
+      _emailController.text,
+      _passwordController.text,
+    );
+
+    if (error != null) {
+      setState(() => _errorMessage = error);
+      return;
+    }
+
+    context.go('/dashboard');
   }
 
   @override
@@ -98,7 +112,16 @@ class _LoginScreenState extends State<LoginScreen> {
                             Text('Connectez-vous à votre compte élève',
                                 style: TextStyle(
                                     fontSize: 15, color: AppColors.textSecondary)),
-                            const SizedBox(height: 28),
+                            if (_errorMessage.isNotEmpty) ...[
+                              const SizedBox(height: 14),
+                              Text(_errorMessage,
+                                  style: const TextStyle(
+                                    color: Colors.redAccent,
+                                    fontSize: 13,
+                                  )),
+                            ],
+                            const SizedBox(height: 14),
+                            const SizedBox(height: 14),
 
                             // Email
                             _buildLabel('Adresse email'),

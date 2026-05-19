@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import '../../models/user.dart';
+import '../../services/auth_service.dart';
 import '../theme/app_theme.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -329,6 +331,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
             ),
             const SizedBox(height: 20),
+            _buildRoleSection(),
+            const SizedBox(height: 20),
 
             // Recent results
             Container(
@@ -421,6 +425,118 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 20),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildRoleSection() {
+    final user = AuthService.currentUser;
+    if (user == null) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Accès professeur',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text('Rôle actuel : ${user.roleLabel}',
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary)),
+          const SizedBox(height: 14),
+          if (user.canRequestTeacherAccess) ...[
+            const Text(
+              'Vous pouvez demander l’accès professeur. Une fois validé par l’administrateur, vous pourrez activer le mode professeur.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 14),
+            FilledButton(
+              onPressed: () {
+                final success = AuthService.requestTeacherAccess();
+                if (success) {
+                  setState(() {});
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Demande d’accès professeur envoyée.'),
+                    ),
+                  );
+                }
+              },
+              child: const Text('Demander un accès professeur'),
+            ),
+          ] else if (user.teacherRequestPending) ...[
+            Text(
+              'Demande en attente.',
+              style: TextStyle(fontSize: 14, color: AppColors.brand),
+            ),
+          ] else if (user.teacherAccessApproved && user.role == UserRole.student) ...[
+            const Text(
+              'Votre accès professeur est approuvé. Activez le mode professeur pour basculer.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 14),
+            FilledButton(
+              onPressed: () {
+                AuthService.activateTeacherMode();
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Mode professeur activé.'),
+                  ),
+                );
+              },
+              child: const Text('Activer le mode professeur'),
+            ),
+          ] else if (user.role == UserRole.teacher) ...[
+            const Text(
+              'Vous êtes en mode professeur. Vous pouvez revenir au mode élève ou ouvrir l’espace professeur.',
+              style: TextStyle(fontSize: 14),
+            ),
+            const SizedBox(height: 14),
+            FilledButton(
+              onPressed: () {
+                AuthService.activateStudentMode();
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Mode élève rétabli.'),
+                  ),
+                );
+              },
+              child: const Text('Revenir au mode élève'),
+            ),
+            const SizedBox(height: 12),
+            OutlinedButton(
+              onPressed: () => context.go('/teacher-portal'),
+              child: const Text('Ouvrir l’espace professeur'),
+            ),
+          ] else ...[
+            Text(
+              'Aucun accès professeur demandé ou attribué pour le moment.',
+              style: TextStyle(fontSize: 14, color: AppColors.textSecondary),
+            ),
+          ],
+        ],
       ),
     );
   }
