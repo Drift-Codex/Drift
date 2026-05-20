@@ -10,8 +10,14 @@ class ContactScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-          onPressed: () => context.go('/dashboard'),
-          icon: const Icon(Icons.arrow_back_rounded),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              context.go('/dashboard');
+            }
+          },
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
         ),
         title: const Text('Contactez-nous'),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_drawer.dart';
@@ -93,6 +94,16 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
       drawer: _buildHistoryDrawer(),
       endDrawer: const AppDrawer(),
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          onPressed: () {
+            if (Navigator.canPop(context)) {
+              Navigator.pop(context);
+            } else {
+              context.go('/dashboard');
+            }
+          },
+        ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -104,8 +115,15 @@ class _AiAssistantScreenState extends State<AiAssistantScreen> {
           ],
         ),
         actions: [
+          Builder(
+            builder: (context) => IconButton(
+              icon: const Icon(Icons.history_rounded),
+              onPressed: () => Scaffold.of(context).openDrawer(),
+              tooltip: 'Historique',
+            ),
+          ),
           Container(
-            margin: const EdgeInsets.only(right: 16),
+            margin: const EdgeInsets.only(right: 16, left: 8),
             width: 10,
             height: 10,
             decoration: BoxDecoration(

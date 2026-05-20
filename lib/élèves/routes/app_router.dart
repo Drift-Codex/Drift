@@ -1,11 +1,12 @@
 import 'package:go_router/go_router.dart';
+import '../screens/quiz_screen.dart';
 
 import '../screens/onboarding_screen.dart';
-import '../screens/landing_screen.dart';
+
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/signup_screen.dart';
 import '../screens/auth/otp_screen.dart';
-import '../screens/dashboard_screen.dart';
+import '../screens/profile_settings_screen.dart';
 import '../screens/exam_bank_screen.dart';
 import '../screens/ai_assistant_screen.dart';
 import '../screens/forum_screen.dart';
@@ -18,6 +19,11 @@ import '../screens/contact_screen.dart';
 import '../screens/about_screen.dart';
 import '../widgets/main_shell.dart';
 import '../screens/post_detail_screen.dart';
+import '../screens/post_subject_screen.dart';
+import '../screens/quiz_screen.dart';
+import '../screens/teacher_certification_screen.dart';
+import '../screens/quiz_configuration_screen.dart';
+import '../screens/ai_quiz_upload_screen.dart';
 
 class AppRouter {
   static GoRouter create({String initialLocation = '/'}) {
@@ -50,12 +56,12 @@ class AppRouter {
             builder: (context, state) => const ExamBankScreen(),
           ),
           GoRoute(
-            path: '/statistiques',
-            builder: (context, state) => const DashboardScreen(),
+            path: '/profil-parametres',
+            builder: (context, state) => const ProfileSettingsScreen(),
           ),
           GoRoute(
-            path: '/assistant',
-            builder: (context, state) => const AiAssistantScreen(),
+            path: '/quiz',
+            builder: (context, state) =>  QuizScreen(),
           ),
           GoRoute(
             path: '/forum',
@@ -89,11 +95,23 @@ class AppRouter {
               );
             },
           ),
+          GoRoute(
+            path: '/quiz-configuration',
+            builder: (context, state) => const QuizConfigurationScreen(),
+          ),
+          GoRoute(
+            path: '/ai-quiz-upload',
+            builder: (context, state) => const AiQuizUploadScreen(),
+          ),
         ],
       ),
       GoRoute(
         path: '/teacher-portal',
         builder: (context, state) => const TeacherPortalScreen(),
+      ),
+      GoRoute(
+        path: '/teacher-certification',
+        builder: (context, state) => const TeacherCertificationScreen(),
       ),
       GoRoute(
         path: '/parametres',
@@ -107,6 +125,14 @@ class AppRouter {
       GoRoute(
         path: '/a-propos',
         builder: (context, state) => const AboutScreen(),
+      ),
+      GoRoute(
+        path: '/poster-sujet',
+        builder: (context, state) => const PostSubjectScreen(),
+      ),
+      GoRoute(
+        path: '/assistant',
+        builder: (context, state) => const AiAssistantScreen(),
       ),
     ],
   );

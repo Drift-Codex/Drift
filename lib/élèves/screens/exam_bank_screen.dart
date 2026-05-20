@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:go_router/go_router.dart';
 import '../theme/app_theme.dart';
 import 'post_detail_screen.dart';
 import '../widgets/app_drawer.dart';
+import '../widgets/promo_carousel.dart';
+
+import '../../services/auth_service.dart';
 
 class _FeedItem {
   final String author;
@@ -39,12 +43,76 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
 
   final List<String> _levels = ['Primaire', 'Collège', 'Lycée', 'Université'];
 
+  List<PromoCardModel> _buildPromoCards(BuildContext context) {
+    return [
+      PromoCardModel(
+        badgeText: 'Nouveauté',
+        icon: Icons.workspace_premium_rounded,
+        title: 'Devenir Super Utilisateur 🌟',
+        description: 'Aidez la communauté en validant les corrections de sujets et gagnez des points.',
+        buttonText: 'Faire ma demande',
+        gradientColors: [const Color(0xFF6366F1), const Color(0xFF4F46E5)],
+        onTap: () {
+          if (AuthService.requireLogin(context, action: 'faire une demande')) {
+            context.push('/teacher-certification');
+          }
+        },
+      ),
+      PromoCardModel(
+        badgeText: 'Sponsorisé',
+        icon: Icons.school_rounded,
+        title: 'Formations Premium Nafa 🚀',
+        description: 'Bénéficiez de 30% de réduction sur nos séances intensives de soutien scolaire.',
+        buttonText: 'En savoir plus 🌐',
+        gradientColors: [const Color(0xFF06B6D4), const Color(0xFF0891B2)],
+        onTap: () {
+          showDialog(
+            context: context,
+            builder: (context) => AlertDialog(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+              title: const Text('Nafa Academy Premium'),
+              content: const Text(
+                'Visitez le site internet de Nafa Academy pour vous inscrire à nos cours d\'excellence et débloquer les examens corrigés avec nos tuteurs certifiés.',
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Super !'),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+      PromoCardModel(
+        badgeText: 'Quiz',
+        icon: Icons.quiz_rounded,
+        title: 'Évaluez vos compétences 📝',
+        description: 'Découvrez nos quiz interactifs QCM en Mathématiques, SVT et Physique.',
+        buttonText: 'Démarrer un test',
+        gradientColors: [const Color(0xFFEC4899), const Color(0xFFDB2777)],
+        onTap: () {
+          context.go('/quiz');
+        },
+      ),
+    ];
+  }
+
+  late final List<_FeedItem> _feedItems;
+
+  @override
+  void initState() {
+    super.initState();
+    _feedItems = List.from(allItems);
+  }
+
   static const List<_FeedItem> allItems = [
     _FeedItem(
       author: 'Aminata O.',
       username: '@aminata',
       title: 'Astuce rapide : réussir les transformations algébriques',
-      description: 'Un guide visuel et simple pour transformer les équations sans stress.',
+      description:
+          'Un guide visuel et simple pour transformer les équations sans stress.',
       imageUrl: 'assets/image/sujet1.jpg',
       timeAgo: '12 min',
       aspectRatio: 4 / 5,
@@ -54,7 +122,8 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
       author: 'Ibrahim K.',
       username: '@ibrahim',
       title: 'Révision express : les lois de Newton',
-      description: 'Des exemples faciles à relire avant l’examen du prochain jour.',
+      description:
+          'Des exemples faciles à relire avant l’examen du prochain jour.',
       imageUrl: 'assets/image/sujet2.jpg',
       timeAgo: '45 min',
       aspectRatio: 1,
@@ -64,7 +133,8 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
       author: 'Fatou S.',
       username: '@fatou',
       title: 'Fiches de synthèse : Photosynthèse et respiration',
-      description: 'Un support visuel clair pour retenir les étapes principales.',
+      description:
+          'Un support visuel clair pour retenir les étapes principales.',
       imageUrl: 'assets/image/Sujet3.jpg',
       timeAgo: '1 h',
       aspectRatio: 4 / 5,
@@ -89,7 +159,7 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
   }
 
   List<_FeedItem> get _filteredItems {
-    return allItems.where((item) {
+    return _feedItems.where((item) {
       final query = _searchController.text.toLowerCase();
       if (query.isNotEmpty) {
         if (!item.title.toLowerCase().contains(query) &&
@@ -143,7 +213,7 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
               ),
             ),
           ),
-          
+
           // Filtres
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
@@ -164,17 +234,29 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
                     selectedColor: AppColors.brand,
                     backgroundColor: Colors.white,
                     labelStyle: TextStyle(
-                      color: isSelected ? Colors.white : AppColors.textSecondary,
-                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.textSecondary,
+                      fontWeight: isSelected
+                          ? FontWeight.w600
+                          : FontWeight.normal,
                     ),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(20),
-                      side: BorderSide(color: isSelected ? AppColors.brand : AppColors.divider),
+                      side: BorderSide(
+                        color: isSelected ? AppColors.brand : AppColors.divider,
+                      ),
                     ),
                   ),
                 );
               }).toList(),
             ),
+          ),
+
+          // Carrousel publicitaire et d'annonces
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: PromoCarousel(cards: _buildPromoCards(context)),
           ),
 
           // Liste des Posts
@@ -183,8 +265,55 @@ class _ExamBankScreenState extends State<ExamBankScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               itemCount: _filteredItems.length,
               separatorBuilder: (context, index) => const SizedBox(height: 16),
-              itemBuilder: (context, index) => _FeedCard(item: _filteredItems[index]),
+              itemBuilder: (context, index) =>
+                  _FeedCard(item: _filteredItems[index]),
             ),
+          ),
+        ],
+      ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            heroTag: 'ai_assistant_fab',
+            onPressed: () {
+              context.push('/assistant');
+            },
+            backgroundColor: Colors.white,
+            elevation: 4,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            child: const Icon(Icons.smart_toy_rounded, color: AppColors.brand),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'post_subject_fab',
+            onPressed: () async {
+              final result = await context.push<Map<String, dynamic>>(
+                '/poster-sujet',
+              );
+              if (result != null) {
+                setState(() {
+                  _feedItems.insert(
+                    0,
+                    _FeedItem(
+                      author: result['author'] ?? 'Jean Ouedraogo',
+                      username: result['username'] ?? '@jean_ouedraogo',
+                      title: result['title'] ?? '',
+                      description: result['description'] ?? '',
+                      imageUrl: result['imageUrl'] ?? 'assets/image/sujet1.jpg',
+                      timeAgo: 'À l\'instant',
+                      aspectRatio: 1.0,
+                      level: result['level'] ?? 'Lycée',
+                    ),
+                  );
+                });
+              }
+            },
+            backgroundColor: AppColors.brand,
+            elevation: 4,
+            child: const Icon(Icons.add_circle_outline_rounded, color: Colors.white),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ],
       ),

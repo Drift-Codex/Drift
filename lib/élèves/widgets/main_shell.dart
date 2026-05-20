@@ -12,9 +12,9 @@ class MainShell extends StatelessWidget {
     final location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/dashboard')) return 0;
     if (location.startsWith('/forum')) return 1;
-    if (location.startsWith('/assistant')) return 2;
+    if (location.startsWith('/quiz')) return 2;
     if (location.startsWith('/marketplace')) return 3;
-    if (location.startsWith('/statistiques') ||
+    if (location.startsWith('/profil-parametres') ||
         location.startsWith('/banque-sujets'))
       return 4;
     return 0;
@@ -29,13 +29,13 @@ class MainShell extends StatelessWidget {
         context.go('/forum');
         break;
       case 2:
-        context.go('/assistant');
+        context.go('/quiz');
         break;
       case 3:
         context.go('/marketplace');
         break;
       case 4:
-        context.go('/statistiques');
+        context.go('/profil-parametres');
         break;
     }
   }
@@ -98,9 +98,9 @@ class MainShell extends StatelessWidget {
                       onTap: () => _onItemTapped(context, 1),
                     ),
                     _NavItem(
-                      iconOutlined: Icons.smart_toy_outlined,
-                      iconFilled: Icons.smart_toy,
-                      label: 'Assistant',
+                      iconOutlined: Icons.quiz_outlined,
+                      iconFilled: Icons.quiz,
+                      label: 'Quiz',
                       isActive: selectedIndex == 2,
                       onTap: () => _onItemTapped(context, 2),
                     ),
@@ -112,9 +112,9 @@ class MainShell extends StatelessWidget {
                       onTap: () => _onItemTapped(context, 3),
                     ),
                     _NavItem(
-                      iconOutlined: Icons.bar_chart_outlined,
-                      iconFilled: Icons.bar_chart,
-                      label: 'Statistiques',
+                      iconOutlined: Icons.person_outline_rounded,
+                      iconFilled: Icons.person_rounded,
+                      label: 'Profil',
                       isActive: selectedIndex == 4,
                       onTap: () => _onItemTapped(context, 4),
                     ),

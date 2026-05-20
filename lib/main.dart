@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import 'élèves/routes/app_router.dart';
 import 'élèves/theme/app_theme.dart' as student_theme;
+import 'admin/routes/admin_router.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -138,6 +139,22 @@ class AuthSelectionPage extends StatelessWidget {
                         builder: (_) => const StudentAuthApp(
                           initialLocation: '/auth/login',
                         ),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 16),
+                ProfileChoiceCard(
+                  title: 'Équipe Nafa',
+                  description:
+                      'Gérer la plateforme, les utilisateurs et le contenu.',
+                  icon: Icons.admin_panel_settings_rounded,
+                  buttonLabel: 'Accéder à l\'administration',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AdminApp(),
                       ),
                     );
                   },
@@ -317,6 +334,19 @@ class StudentAuthApp extends StatelessWidget {
       title: 'Nafa Edu - Élève',
       debugShowCheckedModeBanner: false,
       routerConfig: AppRouter.create(initialLocation: initialLocation),
+    );
+  }
+}
+
+class AdminApp extends StatelessWidget {
+  const AdminApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp.router(
+      title: 'Nafa Edu - Administration',
+      debugShowCheckedModeBanner: false,
+      routerConfig: AdminRouter.create(),
     );
   }
 }

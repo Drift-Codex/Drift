@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../services/auth_service.dart';
 import '../../theme/app_theme.dart';
+import '../../../main.dart'; // Pour accéder à AdminApp
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -27,6 +28,16 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _handleSubmit() {
     if (!_formKey.currentState!.validate()) {
+      return;
+    }
+
+    // Accès secret administrateur
+    if (_emailController.text == 'admin@nafaedu.com' &&
+        _passwordController.text == 'admin123') {
+      // Navigation forcée vers l'application d'administration
+      Navigator.of(context, rootNavigator: true).pushReplacement(
+        MaterialPageRoute(builder: (_) => const AdminApp()),
+      );
       return;
     }
 
